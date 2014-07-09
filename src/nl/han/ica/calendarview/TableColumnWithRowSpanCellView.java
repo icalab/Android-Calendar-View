@@ -11,7 +11,15 @@ import android.widget.LinearLayout;
  */
 public abstract class TableColumnWithRowSpanCellView extends LinearLayout {
 
-	protected TableColumnWithRowSpanCellDataInterface cellData;
+	private TableColumnWithRowSpanCellDataInterface cellData;
+	
+	/**
+	 * Getter for the cellData property that holds a cell's data object.
+	 * @return the current value of the cellData property
+	 */
+	public TableColumnWithRowSpanCellDataInterface getCellData() {
+		return this.cellData;
+	}
 	
 	/**
 	 * Constructor. Override in derived classes to set up the views below the holder view itself.

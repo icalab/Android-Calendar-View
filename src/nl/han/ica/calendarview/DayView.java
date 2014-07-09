@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import nl.han.ica.activiteitenweger.CalendarOnDragListener;
 import android.content.Context;
 import android.widget.LinearLayout;
 
@@ -34,22 +35,57 @@ public class DayView extends LinearLayout {
 	public static final int RESOLUTION_HOUR = 3;
 
 	private int resolution;
+	
+	/**
+	 * Getter for the resolution property that holds the resolution of 
+	 * the current day view.
+	 * @return the current value of the resolution property
+	 */
+	public int getResolution() {
+		return this.resolution;
+	}
 
 	private int numMinutesPerCell;
 
 	private List<? extends CalendarEventInterface> events;
-
+	
+	private Date date;
+	
+	/**
+	 * Getter for the date property that contains the date for the view.
+	 * @return the current value of the date property
+	 */
+	public Date getDate() {
+		return this.date;
+	}
+	
+	private Class<? extends TableColumnWithRowSpanCellView> cellViewClass;
+	
+	private int rowHeight;
+	
+	private Context context;
 
 	/**
-	 * Constructor. Provide a day view object (a list of events arranged into  
+	 * Force the view to be redrawn with a different set of events.
+	 * @param events the set of events to use
+	 */
+	public void redrawForEvents(final List<? extends CalendarEventInterface> events) {
+		this.events = events;
+		this.drawView();
+	}
+	
+	/**
+	 * Constructor. Provide a day view object (a list of events arranged onto a time grid) 
 	 * @param context the application context
+	 * @param date the date for the current day (relevant for empty cells)
 	 * @param events the list of events. Must conform both to the CalendarEventInterface and the TableColumnWithRowSpanCellDataInterface
 	 * @param cellViewClass the class that will be used to display a single event
 	 * @param resolution the resolution to use for the grid. Must be one of RESOLUTION_QUARTER, RESOLUTION_HALF_HOUR, RESOLUTION_HOUR
 	 * @param rowHeight the height of a single row. Must be larger than 0, obviously
 	 */
 	public DayView(
-			final Context context, 
+			final Context context,
+			final Date date,
 			final List<? extends CalendarEventInterface> events,
 			final Class<? extends TableColumnWithRowSpanCellView> cellViewClass,
 			final int resolution,
@@ -67,6 +103,8 @@ public class DayView extends LinearLayout {
 			throw new IllegalArgumentException("rowHeight is less than or equal to zero.");
 		}
 
+		this.context = context;
+		this.date = date;
 		this.events = events;
 		this.resolution = resolution;
 		int numMinutesPerCell = 15;
@@ -77,8 +115,20 @@ public class DayView extends LinearLayout {
 			numMinutesPerCell = 60;
 		}
 		this.numMinutesPerCell = numMinutesPerCell;
+		this.rowHeight = rowHeight;
+		this.cellViewClass = cellViewClass;
+				
+		drawView();
 		
+
+	}
+	
+	/**
+	 * Helper method that performs the actual drawing of the view.
+	 */
+	private void drawView() {
 		ArrayList<CalendarCell> cells = this.getCellsForEvents();
+		
 		
 		// Create the column
 		TableColumnWithRowSpan columnView = new TableColumnWithRowSpan(context,
@@ -88,7 +138,8 @@ public class DayView extends LinearLayout {
 				);
 		columnView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
+                LinearLayout.LayoutParams.MATCH_PARENT
+                ));
 
 		// Attach the column and display it.
 		this.removeAllViews();
@@ -114,7 +165,7 @@ public class DayView extends LinearLayout {
 			// Round off the number of minutes.
 			minutes = minutes / this.numMinutesPerCell;
 			double remainder = (minutes % this.numMinutesPerCell) / this.numMinutesPerCell;
-			minutes = minutes + ((int) Math.round(remainder) * this.numMinutesPerCell);
+			minutes = (minutes * this.numMinutesPerCell) + ((int) Math.round(remainder) * this.numMinutesPerCell);
 
 			if(! byHourAndMinute.containsKey(hours)) {
 				byHourAndMinute.put(hours, new HashMap<Integer, CalendarEventInterface>());
@@ -124,16 +175,18 @@ public class DayView extends LinearLayout {
 
 		// Create the list of events.
 		ArrayList<CalendarCell> cells = new ArrayList<CalendarCell>();
+		
+		
 		int hour = 0;
 		int minute = 0;
+		
 		while(hour <= 23) {
-			
 			// Create start and end times for empty cells.
 			// The exact date does not matter, all we care about
 			// is the time.
 			Calendar startTime = Calendar.getInstance();
-			startTime.setTime(new Date());
-			startTime.set(Calendar.HOUR, hour);
+			startTime.setTime(date);
+			startTime.set(Calendar.HOUR_OF_DAY, hour);
 			startTime.set(Calendar.MINUTE, minute);
 			int endHour = hour;
 			int endMinute = minute + this.numMinutesPerCell;
@@ -143,7 +196,7 @@ public class DayView extends LinearLayout {
 			}
 			Calendar endTime = Calendar.getInstance();
 			endTime.setTime(new Date());
-			endTime.set(Calendar.HOUR, endHour);
+			endTime.set(Calendar.HOUR_OF_DAY, endHour);
 			endTime.set(Calendar.MINUTE, endMinute);
 			
 			// There's an event that starts during this hour.
@@ -157,16 +210,25 @@ public class DayView extends LinearLayout {
 					cells.add(cell);
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(cell.getDataObject().getEnd());
-					hour = calendar.get(Calendar.HOUR_OF_DAY);
-					minute = calendar.get(Calendar.MINUTE);
-					if(minute % this.numMinutesPerCell != 0) {
-						minute = (minute / this.numMinutesPerCell) * this.numMinutesPerCell;
-						minute = minute + this.numMinutesPerCell;
-						if(minute >= 60) {
-							minute = 0;
-							hour++;
+					int newHour = calendar.get(Calendar.HOUR_OF_DAY);
+					// This happens when an event ends on the next day.
+					if(newHour < hour) {
+						hour = 24;
+						minute = 0;
+					}
+					else {
+						hour = newHour;
+						minute = calendar.get(Calendar.MINUTE);
+						if(minute % this.numMinutesPerCell != 0) {
+							minute = (minute / this.numMinutesPerCell) * this.numMinutesPerCell;
+							minute = minute + this.numMinutesPerCell;
+							if(minute >= 60) {
+								minute = 0;
+								hour++;
+							}
 						}
 					}
+
 					continue;
 				}
 				// No event for this time slot.
@@ -192,8 +254,11 @@ public class DayView extends LinearLayout {
 			}
 
 		}
+		
+
 
 		return cells;
+		
 	}
 
 	/**

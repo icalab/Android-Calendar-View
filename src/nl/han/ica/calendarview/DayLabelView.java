@@ -1,14 +1,14 @@
 package nl.han.ica.calendarview;
 
-import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
+import nl.han.ica.activiteitenweger.LeftRightSwipeClickListener;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /**
  * Class for day labels at the top of each calendar event column.
@@ -100,22 +100,15 @@ public abstract class DayLabelView extends LinearLayout {
 	}
 
 	/**
-	 * Constructor. Creates the view and sets up the left swipe, right swipe and click listeners.
+	 * Constructor. Sets up the left swipe, right swipe and click listeners.
 	 * @param context
 	 */
-	public DayLabelView(Context context, Date date) {
+	public DayLabelView(final Context context, final Date date, final ArrayList<Date> allDates) {
 		super(context);
 		this.setDate(date);
+
 		
-		this.setLayoutParams(new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT));
-		this.addView(this.getView());
-
-
 		this.swipeListener = new LeftRightSwipeClickListener();
-
-
 
 		this.setOnLeftSwipeListener(new Runnable() {
 			public void run() {
@@ -156,12 +149,6 @@ public abstract class DayLabelView extends LinearLayout {
 
 
 	}
-
-	/**
-	 * This is the method that returns the view that contains whatever will be displayed by this view.
-	 * @return the view with that will be attached to the DayLabelView
-	 */
-	protected abstract View getView();
 
 
 }

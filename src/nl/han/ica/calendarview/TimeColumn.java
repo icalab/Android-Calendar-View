@@ -52,6 +52,10 @@ public class TimeColumn extends LinearLayout {
 		if(resolution == DayView.RESOLUTION_HOUR) {
 			numMinutesPerCell = 60;
 		}
+		
+		initBackgroundEmpty();
+		initBackgroundLabel();
+		initBackgroundLabelHalf();
 
 		int hour = 0;
 		int minute = 0;
@@ -59,7 +63,8 @@ public class TimeColumn extends LinearLayout {
 
 			// We're copying the GoogleCalendar interface where we
 			// only show times next to the start of a new hour.
-			if(minute == 0) {
+			// Well, no. In the IOS app, half hours are shown as well.
+			if(minute == 0 || ((resolution == DayView.RESOLUTION_QUARTER) && (minute == 30)) ) {
 				Calendar calendar = Calendar.getInstance();
 				calendar.set(Calendar.HOUR_OF_DAY, hour);
 				calendar.set(Calendar.MINUTE, minute);
@@ -81,6 +86,7 @@ public class TimeColumn extends LinearLayout {
 
 	private LayerDrawable backgroundEmpty;
 	private LayerDrawable backgroundContent;
+	private LayerDrawable backgroundContentHalfHour;
 
 	/**
 	 * Generate a new empty cell.
@@ -88,20 +94,6 @@ public class TimeColumn extends LinearLayout {
 	 */
 	@SuppressWarnings("deprecation")
 	protected View generateCell() {
-
-		if(backgroundEmpty == null) {
-			ShapeDrawable background = new ShapeDrawable();
-			background.getPaint().setColor(Color.WHITE);
-			ShapeDrawable border = new ShapeDrawable();
-			border.getPaint().setColor(Color.LTGRAY);
-			Drawable[] layers = new Drawable[2];
-			layers[0] = border;
-			layers[1] = background;
-			LayerDrawable layerList = new LayerDrawable(layers);
-			layerList.setLayerInset(0, 0, 0, 0, 0);
-			layerList.setLayerInset(1, 0, 1, 0, 0);
-			this.backgroundEmpty = layerList;
-		}
 
 		TextView cell = new TextView(this.context);
 		cell.setLayoutParams(new LinearLayout.LayoutParams(
@@ -129,19 +121,6 @@ public class TimeColumn extends LinearLayout {
 	 */
 	@SuppressWarnings("deprecation")
 	protected View generateCell(String content) {
-		if(backgroundContent == null) {
-			ShapeDrawable background = new ShapeDrawable();
-			background.getPaint().setColor(Color.WHITE);
-			ShapeDrawable border = new ShapeDrawable();
-			border.getPaint().setColor(Color.GRAY);
-			Drawable[] layers = new Drawable[2];
-			layers[0] = border;
-			layers[1] = background;
-			LayerDrawable layerList = new LayerDrawable(layers);
-			layerList.setLayerInset(0, 0, 0, 0, 0);
-			layerList.setLayerInset(1, 0, 1, 0, 0);
-			this.backgroundContent = layerList;
-		}
 
 		TextView cell = new TextView(this.context);
 		cell.setLayoutParams(new LinearLayout.LayoutParams(
@@ -150,19 +129,77 @@ public class TimeColumn extends LinearLayout {
 
 		int sdk = android.os.Build.VERSION.SDK_INT;
 
+		LayerDrawable background = this.backgroundContent;
+		if(content.matches(".*30$")) {
+			cell.setTextColor(Color.GRAY);
+			background = this.backgroundContentHalfHour;
+		}
 
 		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-			cell.setBackgroundDrawable(this.backgroundContent);
+			cell.setBackgroundDrawable(background);
 		} else {
-			cell.setBackground(this.backgroundContent);
+			cell.setBackground(background);
 		}
 		cell.setPadding(10,10,10,10);
 		cell.setText(content);
+		
+
 
 
 		cell.setHeight(this.rowHeight);
 
 		return cell;
 
+	}
+	
+	private void initBackgroundEmpty() {
+		// Backgrounds for empty cells
+		ShapeDrawable background = new ShapeDrawable();
+		background.getPaint().setColor(Color.WHITE);
+		ShapeDrawable border = new ShapeDrawable();
+		border.getPaint().setColor(Color.LTGRAY);
+		Drawable[] layers = new Drawable[2];
+		layers[0] = border;
+		layers[1] = background;
+		LayerDrawable layerList = new LayerDrawable(layers);
+		layerList.setLayerInset(0, 0, 0, 0, 0);
+		layerList.setLayerInset(1, 0, 1, 1, 0);
+		this.backgroundEmpty = layerList;
+	}
+	
+	private void initBackgroundLabel() {
+		ShapeDrawable background = new ShapeDrawable();
+		background.getPaint().setColor(Color.WHITE);
+		ShapeDrawable border = new ShapeDrawable();
+		border.getPaint().setColor(Color.GRAY);
+		ShapeDrawable rightBorder = new ShapeDrawable();
+		rightBorder.getPaint().setColor(Color.LTGRAY);
+		Drawable[] layers = new Drawable[3];
+		layers[0] = rightBorder;
+		layers[1] = border;
+		layers[2] = background;
+		LayerDrawable layerList = new LayerDrawable(layers);
+		layerList.setLayerInset(0, 0, 0, 0, 0);
+		layerList.setLayerInset(1, 0, 0, 1, 0);
+		layerList.setLayerInset(2, 0, 1, 1, 0);
+		this.backgroundContent = layerList;
+	}
+	
+	private void initBackgroundLabelHalf() {
+		ShapeDrawable background = new ShapeDrawable();
+		background.getPaint().setColor(Color.WHITE);
+		ShapeDrawable border = new ShapeDrawable();
+		border.getPaint().setColor(Color.LTGRAY);
+		ShapeDrawable rightBorder = new ShapeDrawable();
+		rightBorder.getPaint().setColor(Color.LTGRAY);
+		Drawable[] layers = new Drawable[3];
+		layers[0] = rightBorder;
+		layers[1] = border;
+		layers[2] = background;
+		LayerDrawable layerList = new LayerDrawable(layers);
+		layerList.setLayerInset(0, 0, 0, 0, 0);
+		layerList.setLayerInset(1, 0, 0, 1, 0);
+		layerList.setLayerInset(2, 0, 1, 1, 0);
+		this.backgroundContentHalfHour = layerList;
 	}
 }

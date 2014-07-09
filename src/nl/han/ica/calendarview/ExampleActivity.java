@@ -1,20 +1,9 @@
 package nl.han.ica.calendarview;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
 import nl.han.ica.activiteitenweger.R;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 /**
  * Usage example for the CalendarView class.
@@ -24,11 +13,11 @@ import android.widget.ScrollView;
  */
 public class ExampleActivity extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		//setContentView(R.layout.activity_main);
+	}
 
 
 	@Override
@@ -42,12 +31,14 @@ public class ExampleActivity extends Activity {
 		// Test the DayView class
 		//testDayView();
 		// Test the CalendarView class
-		testSingleDayCalendarView();
+		//testSingleDayCalendarView();
 		return true;
 	}
 
+	/*
+
 	private void testSingleDayCalendarView(){
-		
+
 		ArrayList<nl.han.ica.activiteitenweger.model.Activity> events = this.getEvents();
 		Date startDate = null;
 		Date endDate = null;
@@ -65,7 +56,7 @@ public class ExampleActivity extends Activity {
 				endDate = event.getEnd();
 			}
 		}
-		
+
 		CalendarView view = new CalendarView(
 				(Context) this,
 				this.getEvents(),
@@ -76,19 +67,12 @@ public class ExampleActivity extends Activity {
 				startDate,
 				endDate
 				);
-		view.setLayoutParams(new ScrollView.LayoutParams(
+		view.setLayoutParams(new LinearLayout.LayoutParams(
 				ScrollView.LayoutParams.MATCH_PARENT,
 				ScrollView.LayoutParams.WRAP_CONTENT));
 
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.main);
-		ScrollView scrollWrapper = new ScrollView((Context) this);
-		
-    	scrollWrapper.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
-		
-		scrollWrapper.addView(view);
-		myLayout.addView(scrollWrapper);
+		myLayout.addView(view);
 	}
 
 	private ArrayList<nl.han.ica.activiteitenweger.model.Activity> getEvents(){
@@ -117,84 +101,84 @@ public class ExampleActivity extends Activity {
 			thirdActivity.setName("third activity");
 			events.add(thirdActivity);
 
-			nl.han.ica.activiteitenweger.model.Activity fourthActivity = new nl.han.ica.activiteitenweger.model.Activity((Context) this);
-			fourthActivity.setStart(formatter.parse("1980-01-04 13:00"));
-			fourthActivity.setEnd(formatter.parse("1980-01-04 13:55"));
-			fourthActivity.setName("fourth activity");
-			events.add(fourthActivity);
 			
-			return events;
-		}
-		catch(Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			Log.e(this.getClass().toString(), 
-					"Exception occurred in onCreateOptionsMenu:" + exceptionAsString);
-			return null;
-		}
-	}
+			//nl.han.ica.activiteitenweger.model.Activity fourthActivity = new nl.han.ica.activiteitenweger.model.Activity((Context) this);
+			//fourthActivity.setStart(formatter.parse("1980-01-04 13:00"));
+			//fourthActivity.setEnd(formatter.parse("1980-01-04 13:55"));
+			//fourthActivity.setName("fourth activity");
+			//events.add(fourthActivity);
+	 
 
-	private void testDayView() {
+	return events;
+}
+catch(Exception e) {
+	StringWriter sw = new StringWriter();
+	e.printStackTrace(new PrintWriter(sw));
+	String exceptionAsString = sw.toString();
+	Log.e(this.getClass().toString(), 
+			"Exception occurred in onCreateOptionsMenu:" + exceptionAsString);
+	return null;
+}
+}
 
-		DayView dayView = new DayView(
-				(Context) this,
-				this.getEvents(),
-				ExampleCalendarCellView.class,
-				DayView.RESOLUTION_HALF_HOUR,
-				60
-				);
-		dayView.setLayoutParams(new ScrollView.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT));
+private void testDayView() {
 
-		LinearLayout myLayout = (LinearLayout) findViewById(R.id.main);
-		ScrollView scrollWrapper = new ScrollView((Context) this);
-		/*
-    	scrollWrapper.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
-		 */
-		scrollWrapper.addView(dayView);
-		myLayout.addView(scrollWrapper);
+	DayView dayView = new DayView(
+			(Context) this,
+			this.getEvents(),
+			ExampleCalendarCellView.class,
+			DayView.RESOLUTION_HALF_HOUR,
+			60
+			);
+	dayView.setLayoutParams(new ScrollView.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.WRAP_CONTENT));
 
+	LinearLayout myLayout = (LinearLayout) findViewById(R.id.main);
+	ScrollView scrollWrapper = new ScrollView((Context) this);
 
-
-	}
-
+	scrollWrapper.addView(dayView);
+	myLayout.addView(scrollWrapper);
 
 
-	private void testTableColumnWithRowSpan() {
 
-		LinearLayout myLayout = (LinearLayout) findViewById(R.id.main);
-
-		// Generate some cells
-		ArrayList<TableCell> cells = new ArrayList<TableCell>();
-		cells.add(new TableCell());
-		TableCell doubleCell = new TableCell();
-		doubleCell.setRowSpan(2);
-		cells.add(doubleCell);
-		cells.add(new TableCell());
-		cells.add(doubleCell);
-		cells.add(new TableCell());
-		cells.add(doubleCell);
-
-		// Create the column
-		TableColumnWithRowSpan column = new TableColumnWithRowSpan(
-				(Context) this,
-				cells,
-				BasicColumnCellView.class,
-				75
-				);
-
-		column.setLayoutParams(new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT));
+}
 
 
-		myLayout.addView(column);
-	}
 
-    
+private void testTableColumnWithRowSpan() {
+
+	LinearLayout myLayout = (LinearLayout) findViewById(R.id.main);
+
+	// Generate some cells
+	ArrayList<TableCell> cells = new ArrayList<TableCell>();
+	cells.add(new TableCell());
+	TableCell doubleCell = new TableCell();
+	doubleCell.setRowSpan(2);
+	cells.add(doubleCell);
+	cells.add(new TableCell());
+	cells.add(doubleCell);
+	cells.add(new TableCell());
+	cells.add(doubleCell);
+
+	// Create the column
+	TableColumnWithRowSpan column = new TableColumnWithRowSpan(
+			(Context) this,
+			cells,
+			BasicColumnCellView.class,
+			75
+			);
+
+	column.setLayoutParams(new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.MATCH_PARENT));
+
+
+	myLayout.addView(column);
+}
+
+*/
+
+
 }
 

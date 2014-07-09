@@ -1,11 +1,11 @@
 package nl.han.ica.calendarview;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 /**
@@ -16,19 +16,35 @@ import android.widget.TextView;
  */
 public class ExampleDayLabelView extends DayLabelView {
 	
-	public ExampleDayLabelView(final Context context, final Date date) {
-		super(context, date);
-	}
+	public ExampleDayLabelView(final Context context, final Date date, final ArrayList<Date> allDates) {
+		super(context, date, allDates);
+		/*
+		ShapeDrawable background = new ShapeDrawable();
+		background.getPaint().setColor(Color.RED);
+		ShapeDrawable border = new ShapeDrawable();
+		int borderColor = Color.GREEN;
+		border.getPaint().setColor(borderColor);
+		Drawable[] layers = new Drawable[2];
+		layers[0] = border;
+		layers[1] = background;
+		LayerDrawable layerList = new LayerDrawable(layers);
+		layerList.setLayerInset(0, 0, 0, 0, 0);
+		layerList.setLayerInset(1, 0, 1, 0, 0);
+		int sdk = android.os.Build.VERSION.SDK_INT;
+		if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+			this.setBackgroundDrawable(layerList);
+		} else {
+			this.setBackground(layerList);
+		}
+		*/
 	
-	@Override
-	protected View getView() {
 		TextView dateView = new TextView(this.getContext());
 
 		DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(this.getContext());
 		dateView.setText(dateFormat.format(this.getDate()));
 		// Set some padding so the view is easier to click and swipe on.
 		dateView.setPadding(5, 5, 5, 5);
-		return dateView;
+		this.addView(dateView);
 	}
 	
 	@Override

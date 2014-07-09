@@ -43,6 +43,8 @@ public class TableColumnWithRowSpan extends LinearLayout {
 	   	for(int itemNum = 0; itemNum < numItems; itemNum++) {
 	   		this.addView(this.getCellView(this.items.get(itemNum)));
 	   	}
+	   	
+	   	
 	}
 	
 
